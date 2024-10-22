@@ -18,7 +18,49 @@ The dataset used includes details about incidents, their categories, the date & 
 
 
 #Load in data
-datix_df = pd.read_csv(r"../data/1924_Total.csv")
+raw_datix_df = pd.read_csv(r"../data/1924_Total.csv")
+divisions_list = raw_datix_df["Division"].drop_duplicates().sort_values().tolist()
+specialities_list = raw_datix_df["Speciality"].drop_duplicates().sort_values().tolist()
+# select division
+divisions = st.container()
+all_divisions = st.checkbox("Select all", value=True, key=1)
+
+if all_divisions:
+    selected_divisions = divisions.multiselect(
+        "Select division(s)",
+        raw_datix_df["Division"].drop_duplicates().sort_values().tolist(),
+        raw_datix_df["Division"].drop_duplicates().sort_values().tolist()
+    )
+else:
+    selected_divisions = divisions.multiselect(
+        "Select division(s)",
+        raw_datix_df["Division"].drop_duplicates().sort_values().tolist()
+    )
+
+# filter on division
+edited_df = raw_datix_df[raw_datix_df["Division"].isin(selected_divisions)]
+
+# select specialty
+specialities = st.container()
+all_specialties = st.checkbox("Select all", value=True, key=2)
+
+if all_specialties:
+    selected_specialties = st.multiselect(
+        "Select specialty(s)",
+        edited_df["Speciality"].drop_duplicates().sort_values().tolist(),
+        edited_df["Speciality"].drop_duplicates().sort_values().tolist()
+    )
+else:
+    selected_specialties = st.multiselect(
+        "Select specialty(s)",
+        edited_df["Speciality"].drop_duplicates().sort_values().tolist()
+    )
+
+# filter on specialties
+edited_df = raw_datix_df[raw_datix_df["Speciality"].isin(selected_specialties)]
+
+# datix_df = raw_datix_df.copy()
+datix_df = edited_df.copy()
 
 # Get drop the non-time formats, thanks stack overflow!
 datix_df['Time of Incident'] = pd.to_datetime(datix_df['Time of Incident'], errors='coerce')
